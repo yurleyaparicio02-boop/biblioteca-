@@ -54,8 +54,12 @@ def registrar_devolucion(
 ):
     return controllers.prestamos.registrar_devolucion(db, prestamo_id, datos)
 
-
-@router.post("/{prestamo_id}/multa/pago", response_model=PrestamoResponse)
+@router.post("/{prestamo_id}/pago-multa", response_model=PrestamoResponse)
+@router.post(
+    "/{prestamo_id}/multa/pago",
+    response_model=PrestamoResponse,
+    include_in_schema=False,
+)
 def pagar_multa(prestamo_id: int, db: SessionDep):
     """Marca como pagada la multa de un préstamo ya devuelto."""
     return controllers.prestamos.pagar_multa(db, prestamo_id)
