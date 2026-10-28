@@ -37,6 +37,20 @@ uvicorn app.main:app --reload
 La documentación interactiva queda disponible en
 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
+## Datos de ejemplo
+
+Para poblar la base con autores, categorías, libros, socios y préstamos de
+prueba (incluye préstamos activos, vencidos, devueltos y multas pendientes y
+pagadas):
+
+```powershell
+python seed.py
+```
+
+El script es idempotente: busca cada registro por su clave natural (nombre,
+ISBN o email) y solo crea lo que falta, así que puedes ejecutarlo varias veces
+sin duplicar datos.
+
 ## Endpoints
 
 | Recurso | Operaciones |

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query, status
 
 from .. import controllers
 from ..core.database import SessionDep
-from ..core.dependencias import PaginacionDep, Pagina
+from ..core.dependencias import Pagina, PaginacionDep
 from ..schemas.prestamos import (
     DevolucionCrear,
     EstadoPrestamo,
@@ -16,7 +16,8 @@ from ..schemas.prestamos import (
 router = APIRouter(prefix="/prestamos", tags=["Préstamos"])
 
 
-@router.get("", response_model=Pagina[PrestamoResponse])
+@router.get("/", response_model=Pagina[PrestamoResponse])
+@router.get("", response_model=Pagina[PrestamoResponse], include_in_schema=False)
 def listar_prestamos(
     db: SessionDep,
     paginacion: PaginacionDep,
@@ -35,7 +36,13 @@ def obtener_prestamo(prestamo_id: int, db: SessionDep):
 
 
 @router.post(
-    "", response_model=PrestamoResponse, status_code=status.HTTP_201_CREATED
+    "/", response_model=PrestamoResponse, status_code=status.HTTP_201_CREATED
+)
+@router.post(
+    "",
+    response_model=PrestamoResponse,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
 )
 def registrar_prestamo(datos: PrestamoCrear, db: SessionDep):
     return controllers.prestamos.registrar_prestamo(db, datos)

@@ -66,10 +66,12 @@ async def manejar_error_integridad(
 
 
 # Inclusión de routers con el prefijo obligatorio /api/v1
-app.include_router(health.router, prefix="/api/v1/health", tags=["Salud"])
-app.include_router(autores.router, prefix="/api/v1/autores", tags=["Autores"])
-app.include_router(categorias.router, prefix="/api/v1/categorias", tags=["Categorías"])
-app.include_router(libros.router, prefix="/api/v1/libros", tags=["Libros"])
-app.include_router(socios.router, prefix="/api/v1/socios", tags=["Socios"])
-app.include_router(prestamos.router, prefix="/api/v1/prestamos", tags=["Préstamos"])
-app.include_router(reportes.router, prefix="/api/v1/reportes", tags=["Reportes"])
+# Cada router ya declara su propio prefijo (p. ej. /libros); aquí solo se
+# antepone /api/v1 para no duplicar el segmento en la ruta final.
+app.include_router(health.router, prefix="/api/v1", tags=["Salud"])
+app.include_router(autores.router, prefix="/api/v1", tags=["Autores"])
+app.include_router(categorias.router, prefix="/api/v1", tags=["Categorías"])
+app.include_router(libros.router, prefix="/api/v1", tags=["Libros"])
+app.include_router(socios.router, prefix="/api/v1", tags=["Socios"])
+app.include_router(prestamos.router, prefix="/api/v1", tags=["Préstamos"])
+app.include_router(reportes.router, prefix="/api/v1", tags=["Reportes"])
