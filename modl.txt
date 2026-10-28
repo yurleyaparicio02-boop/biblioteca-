@@ -1,0 +1,39 @@
++-------------------+             1       N             +--------------------+
+|      AUTORES      |-----------------------------------|       LIBROS       |
++-------------------+                                   +--------------------+
+| * id (PK)         |                                   | * id (PK)          |
+|   nombre          |                                   |   titulo           |
+|   nacionalidad    |                                   |   isbn (único)     |
+|   anio_nacim.     |                                   |   anio_publicacion |
++-------------------+                                   |   ejemplares       |
+                                                        | # autor_id (FK)    |
+                                                        +--------------------+
+                                                          | N              | 1
+                                                          |                |
+                                                          |                | N
+                                      +-------------------+                v
+                                      |                       +--------------------+
+                                      v                       |     PRESTAMOS      |
+                           +----------------------+           +--------------------+
+                           |   LIBRO_CATEGORIA    |           | * id (PK)          |
+                           +----------------------+           | # libro_id (FK)    |
+                           | *# libro_id (FK)     |           | # socio_id (FK)    |
+                           | *# categoria_id (FK) |           |   fecha_prestamo   |
+                           +----------------------+           |   fecha_limite     |
+                                      ^                       |   fecha_devolucion |
+                                      |                       |   multa            |
+                                      | N                     +--------------------+
+                                      |                                ^
+                           +----------------------+                    | N
+                           |      CATEGORIAS      |                    |
+                           +----------------------+                    | 1
+                           | * id (PK)            |           +--------------------+
+                           |   nombre             |           |       SOCIOS       |
+                           |   descripcion        |           +--------------------+
+                           +----------------------+           | * id (PK)          |
+                                                              |   nombre           |
+                                                              |   email (único)    |
+                                                              |   telefono         |
+                                                              |   activo           |
+                                                              |   fecha_alta       |
+                                                              +--------------------+
