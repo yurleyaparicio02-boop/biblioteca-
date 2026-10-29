@@ -459,6 +459,14 @@ def test_flujo_completo_33_casos_y_cobertura(
 
 def test_caso_25_rate_limiting_login(client: TestClient):
     """Caso 25: 11 peticiones de login en menos de un minuto -> La 11.ª responde 429."""
+    # Debe ejecutarse DESPUÉS del flujo completo: el decorador @limiter.limit
+    # consulta el storage global (de sesión) en cada petición.
+    assert (
+        _login(client, "admin@biblioteca.com", "Admin1234").status_code == 200
+    ), "Ejecuta la suite completa en orden: el caso 25 necesita los datos previos"
+
+    limiter.reset()
+
     for _ in range(10):
         r = _login(client, "noexiste@example.com", "Clave1234")
         assert r.status_code == 401
@@ -471,14 +479,18 @@ def test_endpoints_adicionales_y_reportes(
     client: TestClient, db_session: Session
 ):
     """Prueba endpoints de /socios/me, /usuarios, /reportes, /autores, /categorias y /auth/me/password."""
-    admin_token = _login(client, "admin@biblioteca.com", "Admin1234").json()[
-        "access_token"
-    ]
-    biblio_token = _login(client, "biblio@biblioteca.com", "Biblio1234").json()[
-        "access_token"
-    ]
-    ana_login = _login(client, "ana@example.com", "AnaPassword1").json()
-    ana_token = ana_login["access_token"]
+    admin_root = client.get("/")
+    assert admin_root.status_code == 200
+
+    admin_login = _login(client, "admin@biblioteca.com", "Admin1234")
+    assert admin_login.status_code == 200
+    admin_token = admin_login.json()["access_token"]
+    biblio_login = _login(client, "biblio@biblioteca.com", "Biblio1234")
+    assert biblio_login.status_code == 200
+    biblio_token = biblio_login.json()["access_token"]
+    ana_login = _login(client, "ana@example.com", "AnaPassword1")
+    assert ana_login.status_code == 200
+    ana_token = ana_login.json()["access_token"]
 
     # GET y PATCH /socios/me, /socios/me/prestamos, /socios/me/multas
     res_me = client.get("/api/v1/socios/me", headers=_auth_header(ana_token))
@@ -622,4 +634,3 @@ def test_endpoints_adicionales_y_reportes(
         password="Admin1234",
     )
     assert admin_creado is not None
-    assert client.get("/").status_code == 200

@@ -139,6 +139,3 @@ Todos los endpoints están bajo el prefijo `/api/v1`:
 
 ---
 
-## 9. Integrantes
-
-- Aprendiz SENA – Análisis y Desarrollo de Software (ADSO)

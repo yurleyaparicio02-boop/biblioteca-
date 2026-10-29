@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Query, status
 
@@ -17,7 +17,7 @@ from app.schemas.usuario import (
     UsuarioRespuesta,
 )
 
-RESPUESTAS_ERROR = {
+RESPUESTAS_ERROR: dict[int | str, dict[str, Any]] = {
     401: {"description": "No autenticado"},
     403: {"description": "No tiene permisos para esta acción"},
     404: {"description": "Usuario no encontrado"},

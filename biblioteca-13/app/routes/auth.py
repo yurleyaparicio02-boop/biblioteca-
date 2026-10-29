@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -14,7 +14,7 @@ from app.schemas.auth import (
 )
 from app.schemas.usuario import UsuarioRespuesta
 
-RESPUESTAS_ERROR = {
+RESPUESTAS_ERROR: dict[int | str, dict[str, Any]] = {
     401: {"description": "No autenticado o token inválido"},
     403: {"description": "Sin permisos o usuario inactivo"},
     404: {"description": "Recurso no encontrado"},
@@ -72,7 +72,11 @@ def refresh_token_endpoint(datos: RefreshPeticion, db: SessionDep):
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Cerrar sesión revocando el refresh token",
 )
-def logout(datos: RefreshPeticion, db: SessionDep) -> None:
+def logout(
+    datos: RefreshPeticion,
+    db: SessionDep,
+    _: CurrentUser,
+) -> None:
     auth_controller.cerrar_sesion(db, datos.refresh_token)
 
 

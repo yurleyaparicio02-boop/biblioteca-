@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from ..core.dependencias import Paginacion, Pagina, armar_pagina
+from ..core.dependencies import Paginacion, Pagina, armar_pagina
 from ..core.exceptions import Conflicto, NoEncontrado
 from ..core.texto import patron_busqueda
 from ..models import Autor, Libro

@@ -4,7 +4,7 @@ from decimal import Decimal
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from ..core.dependencias import Paginacion, Pagina, armar_pagina
+from ..core.dependencies import Paginacion, Pagina, armar_pagina
 from ..core.exceptions import Conflicto, NoEncontrado, ReglaNegocio
 from ..models import Libro, Prestamo, RolUsuario, Socio, Usuario
 from ..schemas.prestamos import (

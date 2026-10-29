@@ -4,7 +4,7 @@ from decimal import Decimal
 from sqlalchemy import Integer, case, cast, distinct, func, select
 from sqlalchemy.orm import Session
 
-from ..core.dependencias import Paginacion, Pagina, armar_pagina
+from ..core.dependencies import Paginacion, Pagina, armar_pagina
 from ..models import Autor, Categoria, Libro, Prestamo, Socio, libro_categoria
 from ..schemas.reportes import (
     LibrosPorCategoria,

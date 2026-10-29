@@ -41,7 +41,7 @@ def upgrade() -> None:
     sa.Column('email', sa.String(length=150), nullable=False),
     sa.Column('telefono', sa.String(length=15), nullable=True),
     sa.Column('activo', sa.Boolean(), nullable=False),
-    sa.Column('fecha_alta', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('fecha_alta', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )

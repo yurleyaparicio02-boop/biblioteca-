@@ -88,7 +88,7 @@ async def middleware_request_id_y_logs(request: Request, call_next):
     return response
 
 
-@app.get("/", tags=["Inicio"], summary="Página de entrada de la API")
+@app.get("/", include_in_schema=False)
 def raiz() -> dict[str, str]:
     """Página de entrada con enlaces a la documentación y al resumen."""
     return {

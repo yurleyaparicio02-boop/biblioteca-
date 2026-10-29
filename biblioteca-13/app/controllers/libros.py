@@ -1,7 +1,7 @@
 from sqlalchemy import delete, exists, func, select
 from sqlalchemy.orm import Session, selectinload
 
-from ..core.dependencias import Paginacion, Pagina, armar_pagina
+from ..core.dependencies import Paginacion, Pagina, armar_pagina
 from ..core.exceptions import Conflicto, NoEncontrado, ReglaNegocio
 from ..core.texto import patron_busqueda
 from ..models import Autor, Categoria, Libro, Prestamo, libro_categoria

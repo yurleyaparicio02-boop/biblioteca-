@@ -1,5 +1,13 @@
-.venv/
-venv/
-__pycache__/
-*.pyc
 .env
+**/.env
+.venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+**/.pytest_cache/
+.coverage
+**/.coverage
+htmlcov/
+**/htmlcov/

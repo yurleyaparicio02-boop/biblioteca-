@@ -1,4 +1,11 @@
 from collections.abc import Generator
+from pathlib import Path
+import sys
+import warnings
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+warnings.filterwarnings("ignore", category=PendingDeprecationWarning, module="starlette.*")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="starlette.*")
 
 import pytest
 from fastapi.testclient import TestClient
