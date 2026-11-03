@@ -7,7 +7,13 @@ from .categorias import (
     CategoriaResponse,
     CategoriaResumen,
 )
-from .libros import FiltroLibros, LibroActualizar, LibroCrear, LibroResponse
+from .libros import (
+    FiltroLibros,
+    ImagenLibroResponse,
+    LibroActualizar,
+    LibroCrear,
+    LibroResponse,
+)
 from .prestamos import (
     DevolucionCrear,
     EstadoMulta,
@@ -31,6 +37,7 @@ __all__ = [
     "EstadoMulta",
     "EstadoPrestamo",
     "FiltroLibros",
+    "ImagenLibroResponse",
     "LibroActualizar",
     "LibroCrear",
     "LibroResponse",

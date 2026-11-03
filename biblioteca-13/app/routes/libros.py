@@ -1,6 +1,6 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 
 from .. import controllers
 from ..core.database import SessionDep
@@ -12,6 +12,7 @@ from ..core.dependencies import (
 from ..models.usuario import RolUsuario, Usuario
 from ..schemas.libros import (
     FiltroLibros,
+    ImagenLibroResponse,
     LibroActualizar,
     LibroCrear,
     LibroResponse,
@@ -91,3 +92,20 @@ def eliminar_libro(
     _: Usuario = requiere_rol(RolUsuario.admin),
 ) -> None:
     controllers.libros.eliminar_libro(db, libro_id)
+
+
+@router.post(
+    "/{libro_id}/imagen",
+    response_model=ImagenLibroResponse,
+    summary="Subir la portada del libro a Cloudinary",
+)
+async def subir_imagen_libro(
+    libro_id: int,
+    db: SessionDep,
+    archivo: UploadFile = File(..., description="Portada en JPG, PNG, WEBP"),
+    _: Usuario = requiere_rol(RolUsuario.admin, RolUsuario.bibliotecario),
+):
+    contenido = await archivo.read()
+    return controllers.libros.asignar_imagen_libro(
+        db, libro_id, contenido, archivo.content_type
+    )

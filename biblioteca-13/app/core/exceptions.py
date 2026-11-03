@@ -29,3 +29,7 @@ class Prohibido(ErrorAplicacion):
 
 class CuentaBloqueada(ErrorAplicacion):
     status_code = 423
+
+
+class ServicioNoDisponible(ErrorAplicacion):
+    status_code = 503

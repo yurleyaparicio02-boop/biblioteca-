@@ -106,6 +106,60 @@ pytest --cov=app
 
 ---
 
+## 6.1. Despliegue
+
+El proyecto incluye todo lo necesario para publicarlo sin cambios adicionales: el
+`Dockerfile` aplica las migraciones (`alembic upgrade head`) y luego arranca
+uvicorn en el puerto que indique la plataforma (`$PORT`).
+
+### Docker local
+
+```powershell
+docker compose up -d --build
+# API: http://127.0.0.1:8000/docs  |  Salud: http://127.0.0.1:8000/api/v1/health
+```
+
+### Render (recomendado, plan gratuito)
+
+1. Sube el proyecto a GitHub.
+2. En Render: **New → Blueprint** y selecciona el repositorio; se leerá `render.yaml`,
+   que crea la base de datos PostgreSQL y el servicio web automáticamente.
+3. Render genera `SECRET_KEY` y `DATABASE_URL` por ti. Ajusta `CORS_ORIGINS` al
+   dominio real del frontend (variable de entorno del servicio `biblioteca-api`).
+4. Crea el primer administrador desde la consola del servicio:
+   ```bash
+   python -m app.scripts.crear_admin
+   ```
+
+> La URL de conexión que entrega Render (`postgresql://...`) se convierte
+> automáticamente al driver `psycopg` 3, no hace falta editarla.
+
+### Fly.io
+
+```bash
+fly launch --no-deploy     # usa el fly.toml incluido
+fly postgres create
+fly postgres attach <nombre-de-la-bd>   # define DATABASE_URL
+fly secrets set SECRET_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(32))")
+fly deploy
+```
+
+```bash
+fly status
+fly logs
+```
+
+### Variables obligatorias en producción
+
+| Variable | Valor |
+| --- | --- |
+| `DATABASE_URL` | Cadena de conexión de la plataforma |
+| `SECRET_KEY` | Mínimo 32 caracteres, generada aleatoriamente |
+| `ENVIRONMENT` | `prod` (oculta `/docs` y `/redoc`, exige CORS explícito) |
+| `CORS_ORIGINS` | Lista JSON con el dominio del frontend, sin `*` |
+
+---
+
 ## 7. Roles del sistema
 
 | Rol | Quién es | Qué puede hacer |

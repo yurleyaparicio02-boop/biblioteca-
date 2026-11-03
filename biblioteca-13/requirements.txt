@@ -6,3 +6,5 @@ pydantic-settings>=2.4
 pyjwt>=2.9
 pwdlib[argon2]>=0.2
 slowapi>=0.1.9
+cloudinary>=1.32
+python-multipart>=0.0.9

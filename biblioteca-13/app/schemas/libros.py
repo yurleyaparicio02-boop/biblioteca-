@@ -3,6 +3,7 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from ..core.texto import url_segura
 from .autores import AutorResumen
 from .categorias import CategoriaResumen
 
@@ -20,6 +21,13 @@ class LibroCrear(BaseModel):
     ejemplares: int = Field(ge=1, le=50)
     autor_id: int = Field(gt=0)
     categoria_ids: list[int] = Field(min_length=1, max_length=5)
+    # secure_url de Cloudinary (opcional: también se puede adjuntar el archivo)
+    imagen_url: str | None = Field(default=None, max_length=500)
+
+    @field_validator("imagen_url")
+    @classmethod
+    def validar_imagen_url(cls, value: str | None) -> str | None:
+        return url_segura(value)
 
     @field_validator("titulo", mode="before")
     @classmethod
@@ -43,6 +51,12 @@ class LibroActualizar(BaseModel):
     ejemplares: int | None = Field(default=None, ge=1, le=50)
     autor_id: int | None = Field(default=None, gt=0)
     categoria_ids: list[int] | None = Field(default=None, min_length=1, max_length=5)
+    imagen_url: str | None = Field(default=None, max_length=500)
+
+    @field_validator("imagen_url")
+    @classmethod
+    def validar_imagen_url(cls, value: str | None) -> str | None:
+        return url_segura(value, permitir_vacio=True)
 
     @model_validator(mode="before")
     @classmethod
@@ -79,6 +93,7 @@ class LibroResumen(BaseModel):
     isbn: str
     anio_publicacion: int
     ejemplares: int
+    imagen_url: str | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -88,7 +103,16 @@ class LibroResponse(LibroResumen):
     categorias: list[CategoriaResumen]
 
 
+class ImagenLibroResponse(BaseModel):
+    """Resultado de subir una portada a Cloudinary."""
+
+    libro_id: int | None = None
+    imagen_url: str
+    public_id: str | None = None
+
+
 class FiltroLibros(BaseModel):
+    # Busca por título, ISBN o nombre del autor
     buscar: str | None = None
     autor: str | None = None
     categoria_id: int | None = Field(default=None, gt=0)

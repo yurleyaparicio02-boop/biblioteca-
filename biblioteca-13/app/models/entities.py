@@ -63,6 +63,8 @@ class Libro(Base):
     autor_id: Mapped[int] = mapped_column(
         ForeignKey("autores.id"), index=True, nullable=False
     )
+    # Solo se guarda el enlace seguro (secure_url) de Cloudinary, nunca el archivo.
+    imagen_url: Mapped[str | None] = mapped_column(String(500))
 
     autor: Mapped["Autor"] = relationship(back_populates="libros")
     categorias: Mapped[list["Categoria"]] = relationship(

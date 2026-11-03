@@ -1,0 +1,2 @@
+"""Utilidades de la aplicación."""
+

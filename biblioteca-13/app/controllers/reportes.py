@@ -24,12 +24,13 @@ def libros_mas_prestados(
         select(
             Libro.id.label("libro_id"),
             Libro.titulo,
+            Libro.imagen_url,
             Autor.nombre.label("autor"),
             func.count(Prestamo.id).label("total_prestamos"),
         )
         .join(Prestamo, Prestamo.libro_id == Libro.id)
         .join(Autor, Autor.id == Libro.autor_id)
-        .group_by(Libro.id, Libro.titulo, Autor.id, Autor.nombre)
+        .group_by(Libro.id, Libro.titulo, Libro.imagen_url, Autor.id, Autor.nombre)
     )
     total = db.scalar(select(func.count()).select_from(consulta.subquery())) or 0
     filas = db.execute(

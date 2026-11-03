@@ -11,6 +11,7 @@ class LibroMasPrestado(BaseModel):
     libro_id: int
     titulo: str
     autor: str
+    imagen_url: str | None = None
     total_prestamos: int
 
 

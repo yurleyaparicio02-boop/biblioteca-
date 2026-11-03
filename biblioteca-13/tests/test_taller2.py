@@ -476,7 +476,7 @@ def test_caso_25_rate_limiting_login(client: TestClient):
 
 
 def test_endpoints_adicionales_y_reportes(
-    client: TestClient, db_session: Session
+    client: TestClient, db_session: Session, monkeypatch
 ):
     """Prueba endpoints de /socios/me, /usuarios, /reportes, /autores, /categorias y /auth/me/password."""
     admin_root = client.get("/")
@@ -634,3 +634,30 @@ def test_endpoints_adicionales_y_reportes(
         password="Admin1234",
     )
     assert admin_creado is not None
+
+    # Subida de portada de libro (Cloudinary simulado)
+    monkeypatch.setattr(
+        "app.controllers.libros.subir_bytes_cloudinary",
+        lambda contenido, content_type: (
+            "https://res.cloudinary.com/demo/image/upload/v1/biblioteca/libros/portada1.jpg",
+            "biblioteca/libros/portada1",
+        ),
+    )
+    res_img = client.post(
+        "/api/v1/libros/1/imagen",
+        headers=_auth_header(biblio_token),
+        files={"archivo": ("portada.jpg", b"fake-jpeg-bytes", "image/jpeg")},
+    )
+    assert res_img.status_code == 200
+    assert (
+        res_img.json()["imagen_url"]
+        == "https://res.cloudinary.com/demo/image/upload/v1/biblioteca/libros/portada1.jpg"
+    )
+
+    res_img_404 = client.post(
+        "/api/v1/libros/9999/imagen",
+        headers=_auth_header(biblio_token),
+        files={"archivo": ("portada.jpg", b"fake-jpeg-bytes", "image/jpeg")},
+    )
+    assert res_img_404.status_code == 404
+

@@ -1,11 +1,18 @@
 from sqlalchemy import delete, exists, func, select
 from sqlalchemy.orm import Session, selectinload
 
+from ..core.config import get_settings
 from ..core.dependencies import Paginacion, Pagina, armar_pagina
 from ..core.exceptions import Conflicto, NoEncontrado, ReglaNegocio
 from ..core.texto import patron_busqueda
 from ..models import Autor, Categoria, Libro, Prestamo, libro_categoria
-from ..schemas.libros import FiltroLibros, LibroActualizar, LibroCrear
+from ..schemas.libros import (
+    FiltroLibros,
+    ImagenLibroResponse,
+    LibroActualizar,
+    LibroCrear,
+)
+from ..utils.subir_imagen import subir_bytes_cloudinary
 
 
 def _prestamos_abiertos_por_libro():
@@ -18,12 +25,14 @@ def _prestamos_abiertos_por_libro():
 
 
 def _libro_response(libro: Libro, abiertos: int) -> dict[str, object]:
+    settings = get_settings()
     return {
         "id": libro.id,
         "titulo": libro.titulo,
         "isbn": libro.isbn,
         "anio_publicacion": libro.anio_publicacion,
         "ejemplares": libro.ejemplares,
+        "imagen_url": libro.imagen_url or settings.imagen_libro_predeterminada,
         "disponibles": libro.ejemplares - abiertos,
         "autor": libro.autor,
         "categorias": libro.categorias,
@@ -105,6 +114,8 @@ def crear_libro(db: Session, datos: LibroCrear) -> dict[str, object]:
     if db.scalar(select(Libro.id).where(Libro.isbn == datos.isbn)):
         raise Conflicto("Ya existe un libro con ese ISBN")
     valores = datos.model_dump(exclude={"categoria_ids"})
+    if not valores.get("imagen_url"):
+        valores["imagen_url"] = get_settings().imagen_libro_predeterminada.strip()
     libro = Libro(**valores, categorias=categorias)
     db.add(libro)
     db.commit()
@@ -174,3 +185,25 @@ def eliminar_libro(db: Session, libro_id: int) -> None:
     db.execute(delete(Prestamo).where(Prestamo.libro_id == libro_id))
     db.delete(libro)
     db.commit()
+
+
+def asignar_imagen_libro(
+    db: Session,
+    libro_id: int,
+    archivo_bytes: bytes,
+    content_type: str | None,
+) -> ImagenLibroResponse:
+    libro = db.get(Libro, libro_id)
+    if libro is None:
+        raise NoEncontrado("Libro no encontrado")
+
+    secure_url, public_id = subir_bytes_cloudinary(archivo_bytes, content_type)
+    libro.imagen_url = secure_url
+    db.commit()
+    db.refresh(libro)
+
+    return ImagenLibroResponse(
+        libro_id=libro.id,
+        imagen_url=secure_url,
+        public_id=public_id,
+    )
