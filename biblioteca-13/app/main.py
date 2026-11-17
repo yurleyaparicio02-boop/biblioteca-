@@ -41,15 +41,6 @@ app = FastAPI(
 
 app.state.limiter = limiter
 
-# Configuración de CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 @app.middleware("http")
 async def middleware_request_id_y_logs(request: Request, call_next):
@@ -86,6 +77,21 @@ async def middleware_request_id_y_logs(request: Request, call_next):
         duracion_ms,
     )
     return response
+
+
+# Configuración de CORS (se agrega después del middleware HTTP para que sea la capa más externa)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_origin_regex=(
+        None
+        if settings.environment == "prod"
+        else r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
+    ),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/", include_in_schema=False)

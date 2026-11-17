@@ -7,23 +7,21 @@ API REST de nivel de producción para la gestión de una biblioteca, construida 
 ## Requisitos
 
 - Python 3.12+
-- PostgreSQL 15+ (local o mediante Docker)
+- PostgreSQL 15+ instalado localmente
 
 ---
 
-## 1. Instalación
+## 1. Instalación (sin Docker)
 
-1. Clonar el repositorio y entrar a la carpeta del proyecto:
+1. Clonar el repositorio y entrar a la carpeta `biblioteca-13`:
    ```powershell
+   cd biblioteca-13
    python -m venv .venv
    .\.venv\Scripts\Activate.ps1
    pip install -r requirements-dev.txt
    ```
-2. Levantar la base de datos con Docker Compose (opcional si ya tienes PostgreSQL local):
-   ```powershell
-   docker compose up -d db
-   ```
-3. Copiar `.env.example` a `.env` y configurar las variables de entorno.
+2. Crear la base de datos `biblioteca` (y opcionalmente `biblioteca_test`) en tu PostgreSQL local (desde pgAdmin o `psql`).
+3. Copiar `.env.example` a `.env` y configurar las variables de entorno con tu usuario y contraseña de PostgreSQL local.
 
 ---
 
@@ -103,60 +101,6 @@ uvicorn app.main:app --reload
 ```powershell
 pytest --cov=app
 ```
-
----
-
-## 6.1. Despliegue
-
-El proyecto incluye todo lo necesario para publicarlo sin cambios adicionales: el
-`Dockerfile` aplica las migraciones (`alembic upgrade head`) y luego arranca
-uvicorn en el puerto que indique la plataforma (`$PORT`).
-
-### Docker local
-
-```powershell
-docker compose up -d --build
-# API: http://127.0.0.1:8000/docs  |  Salud: http://127.0.0.1:8000/api/v1/health
-```
-
-### Render (recomendado, plan gratuito)
-
-1. Sube el proyecto a GitHub.
-2. En Render: **New → Blueprint** y selecciona el repositorio; se leerá `render.yaml`,
-   que crea la base de datos PostgreSQL y el servicio web automáticamente.
-3. Render genera `SECRET_KEY` y `DATABASE_URL` por ti. Ajusta `CORS_ORIGINS` al
-   dominio real del frontend (variable de entorno del servicio `biblioteca-api`).
-4. Crea el primer administrador desde la consola del servicio:
-   ```bash
-   python -m app.scripts.crear_admin
-   ```
-
-> La URL de conexión que entrega Render (`postgresql://...`) se convierte
-> automáticamente al driver `psycopg` 3, no hace falta editarla.
-
-### Fly.io
-
-```bash
-fly launch --no-deploy     # usa el fly.toml incluido
-fly postgres create
-fly postgres attach <nombre-de-la-bd>   # define DATABASE_URL
-fly secrets set SECRET_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(32))")
-fly deploy
-```
-
-```bash
-fly status
-fly logs
-```
-
-### Variables obligatorias en producción
-
-| Variable | Valor |
-| --- | --- |
-| `DATABASE_URL` | Cadena de conexión de la plataforma |
-| `SECRET_KEY` | Mínimo 32 caracteres, generada aleatoriamente |
-| `ENVIRONMENT` | `prod` (oculta `/docs` y `/redoc`, exige CORS explícito) |
-| `CORS_ORIGINS` | Lista JSON con el dominio del frontend, sin `*` |
 
 ---
 

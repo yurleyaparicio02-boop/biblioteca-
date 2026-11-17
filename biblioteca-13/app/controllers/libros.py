@@ -24,15 +24,40 @@ def _prestamos_abiertos_por_libro():
     )
 
 
+IMAGENES_PREDETERMINADAS_LIBROS: dict[str, str] = {
+    "9780307474728": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/cien_a%C3%B1os_de_soledad_lnad7d.jpg",
+    "cien anios de soledad": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/cien_a%C3%B1os_de_soledad_lnad7d.jpg",
+    "cien años de soledad": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/cien_a%C3%B1os_de_soledad_lnad7d.jpg",
+    "9788401352836": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/images_s13exd.jpg",
+    "la casa de los espiritus": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/images_s13exd.jpg",
+    "la casa de los espíritus": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/images_s13exd.jpg",
+    "9780307387264": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/26748ccf3fddb99a7d3d14d8db88ca57_hnyyrr.jpg",
+    "el amor en los tiempos del colera": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/26748ccf3fddb99a7d3d14d8db88ca57_hnyyrr.jpg",
+    "el amor en los tiempos del cólera": "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/26748ccf3fddb99a7d3d14d8db88ca57_hnyyrr.jpg",
+}
+
+
+def _imagen_por_defecto(isbn: str, titulo: str) -> str | None:
+    return (
+        IMAGENES_PREDETERMINADAS_LIBROS.get(isbn)
+        or IMAGENES_PREDETERMINADAS_LIBROS.get(titulo.strip().lower())
+    )
+
+
+def _resolver_imagen_libro(libro: Libro) -> str | None:
+    if libro.imagen_url and "res.cloudinary.com/demo/" not in libro.imagen_url:
+        return libro.imagen_url
+    return _imagen_por_defecto(libro.isbn, libro.titulo)
+
+
 def _libro_response(libro: Libro, abiertos: int) -> dict[str, object]:
-    settings = get_settings()
     return {
         "id": libro.id,
         "titulo": libro.titulo,
         "isbn": libro.isbn,
         "anio_publicacion": libro.anio_publicacion,
         "ejemplares": libro.ejemplares,
-        "imagen_url": libro.imagen_url or settings.imagen_libro_predeterminada,
+        "imagen_url": _resolver_imagen_libro(libro),
         "disponibles": libro.ejemplares - abiertos,
         "autor": libro.autor,
         "categorias": libro.categorias,
@@ -115,7 +140,7 @@ def crear_libro(db: Session, datos: LibroCrear) -> dict[str, object]:
         raise Conflicto("Ya existe un libro con ese ISBN")
     valores = datos.model_dump(exclude={"categoria_ids"})
     if not valores.get("imagen_url"):
-        valores["imagen_url"] = get_settings().imagen_libro_predeterminada.strip()
+        valores["imagen_url"] = _imagen_por_defecto(datos.isbn, datos.titulo)
     libro = Libro(**valores, categorias=categorias)
     db.add(libro)
     db.commit()

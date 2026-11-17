@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     cloudinary_folder: str = "biblioteca/libros"
     # Se usa cuando un libro no tiene imagen registrada.
     imagen_libro_predeterminada: str = (
-        "https://res.cloudinary.com/demo/image/upload/w_300,h_450,c_fill/sample.jpg"
+        "https://res.cloudinary.com/v1cv0zdo/image/upload/f_auto/q_auto/26748ccf3fddb99a7d3d14d8db88ca57_hnyyrr.jpg"
     )
 
     @model_validator(mode="before")
